@@ -1,0 +1,6 @@
+# Copy to backend.hcl (git-ignored) and fill in. One state key per environment.
+bucket         = "REPLACE-with-your-state-bucket"
+key            = "okta/dev/terraform.tfstate"
+region         = "us-east-1"
+dynamodb_table = "terraform-locks"
+encrypt        = true

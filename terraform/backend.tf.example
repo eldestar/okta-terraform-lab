@@ -1,0 +1,7 @@
+# Optional remote state. Copy to backend.tf, then:
+#   terraform init -backend-config=backend.hcl
+# (see backend.hcl.example). Without backend.tf, Terraform keeps state in a
+# local file, which is fine for a one-person lab and wrong for a team.
+terraform {
+  backend "s3" {}
+}

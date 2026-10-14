@@ -1,0 +1,13 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+terraform/backend.tf
+terraform/backend.hcl
+crash.log
+crash.*.log
+tfplan
+# keep .terraform.lock.hcl committed
+.DS_Store

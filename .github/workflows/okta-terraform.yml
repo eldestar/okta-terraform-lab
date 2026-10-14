@@ -1,0 +1,79 @@
+name: Okta Terraform (plan and apply)
+
+# NOT exercised against a live org or AWS account. Read it before enabling.
+# Both jobs are skipped unless the repository variable OKTA_CI is "true", so a
+# fresh fork does nothing until you have set up secrets and remote state.
+#
+# Needs repository secrets OKTA_ORG_NAME, OKTA_BASE_URL, OKTA_API_TOKEN and
+# AWS_ROLE_ARN (a role GitHub can assume through OIDC with access to the state
+# bucket), and a backend.hcl supplied as described in the README.
+# Point it at a developer org only.
+
+on:
+  pull_request:
+    paths: ["terraform/**"]
+  push:
+    branches: [main]
+    paths: ["terraform/**"]
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  OKTA_ORG_NAME: ${{ secrets.OKTA_ORG_NAME }}
+  OKTA_BASE_URL: ${{ secrets.OKTA_BASE_URL }}
+  OKTA_API_TOKEN: ${{ secrets.OKTA_API_TOKEN }}
+
+jobs:
+  plan:
+    if: vars.OKTA_CI == 'true' && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.0"
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: Write backend config
+        env:
+          STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+        run: |
+          cp backend.tf.example backend.tf
+          printf '%s\n' "bucket = \"$STATE_BUCKET\"" 'key = "okta/dev/terraform.tfstate"' 'region = "us-east-1"' 'dynamodb_table = "terraform-locks"' 'encrypt = true' > backend.hcl
+      - run: terraform init -backend-config=backend.hcl -input=false
+      - run: terraform plan -no-color -input=false
+
+  apply:
+    if: vars.OKTA_CI == 'true' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    # Create an environment named okta-dev with required reviewers so a
+    # person approves before this job runs.
+    environment: okta-dev
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.0"
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: Write backend config
+        env:
+          STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+        run: |
+          cp backend.tf.example backend.tf
+          printf '%s\n' "bucket = \"$STATE_BUCKET\"" 'key = "okta/dev/terraform.tfstate"' 'region = "us-east-1"' 'dynamodb_table = "terraform-locks"' 'encrypt = true' > backend.hcl
+      - run: terraform init -backend-config=backend.hcl -input=false
+      - run: terraform plan -no-color -input=false -out=tfplan
+      - run: terraform apply -input=false tfplan

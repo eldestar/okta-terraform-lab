@@ -1,0 +1,8 @@
+# Copy to terraform.tfvars and adjust. Never commit the real terraform.tfvars
+# if it contains anything sensitive -- these values aren't secret, but the
+# habit matters. Actual secrets (OKTA_API_TOKEN) are environment variables,
+# never tfvars.
+
+environment                = "dev"
+engineering_group_name     = "Engineering (IaC Lab)"
+internal_tool_redirect_uri = "https://localhost:8080/callback"
