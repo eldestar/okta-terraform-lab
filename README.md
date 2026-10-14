@@ -20,10 +20,10 @@ What is in it:
 - `terraform fmt -check`, `terraform init -backend=false` and `terraform validate`
   pass (Terraform 1.16.5, `okta/okta` provider `~> 4.0`; the lock file is committed
   for linux and macOS on amd64 and arm64).
-- `terraform plan` and `apply` have **not** been run against a live Okta org by
-  the author of this repo's current revision, and the plan/apply workflow has not run in
-  GitHub Actions. Treat resource arguments as unverified against a live tenant until you
-  have planned them yourself.
+- `terraform plan` and `apply` have **not** been run against a live Okta org for
+  this revision, and the plan/apply workflow has not run in GitHub Actions. Treat
+  the resource arguments as unverified against a live tenant until you have planned
+  them yourself.
 - The sign-on policy uses `okta_policy_signon`. If your org is on Identity
   Engine, check the provider documentation for the policy resources your org
   needs before relying on this one.
