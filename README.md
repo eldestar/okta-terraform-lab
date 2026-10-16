@@ -18,7 +18,7 @@ What is in it:
 ## What has and has not been checked
 
 - `terraform fmt -check`, `terraform init -backend=false` and `terraform validate`
-  pass (Terraform 1.16.5, `okta/okta` provider `~> 4.0`; the lock file is committed
+  pass (Terraform 1.16.5, `okta/okta` provider `~> 7.0`; the lock file is committed
   for linux and macOS on amd64 and arm64).
 - `terraform plan` and `apply` have **not** been run against a live Okta org for
   this revision, and the plan/apply workflow has not run in GitHub Actions. Treat
